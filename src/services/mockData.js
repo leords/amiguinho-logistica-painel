@@ -154,8 +154,35 @@ export const mockRotas = {
   "jornada-003": {
     jornadaId: "jornada-003",
     usuarioId: "ENTR-329",
-    veiculoId: "VAN-02",
-    coordenadas: [],
-    eventos: []
+    veiculoId: "VAN-02 (Fiat Ducato - PLACA: BEB9D45)",
+    coordenadas: [
+      { latitude: -23.54500, longitude: -46.63800, dataHora: "2026-11-11T09:00:00Z", velocidadeKmH: 0 },
+      { latitude: -23.54820, longitude: -46.64250, dataHora: "2026-11-11T09:18:20Z", velocidadeKmH: 34 },
+      { latitude: -23.55400, longitude: -46.64900, dataHora: "2026-11-11T09:40:00Z", velocidadeKmH: 27 },
+      { latitude: -23.56010, longitude: -46.65500, dataHora: "2026-11-11T10:10:45Z", velocidadeKmH: 38 },
+      { latitude: -23.56700, longitude: -46.66200, dataHora: "2026-11-11T10:45:00Z", velocidadeKmH: 15 }
+    ],
+    eventos: [
+      {
+        id: "evt-301",
+        pedidoId: "PED-7601",
+        tipoEvento: "ENTREGA_REALIZADA",
+        descricao: "Baixa realizada - 12 caixas Cerveja Premium",
+        dataHora: "2026-11-11T09:42:10Z",
+        clienteNome: "Conveniência Posto Central",
+        latitude: -23.55400,
+        longitude: -46.64900
+      },
+      {
+        id: "evt-302",
+        pedidoId: "PED-7605",
+        tipoEvento: "CLIENTE_AUSENTE",
+        descricao: "Local fechado para almoço, retornar às 14h",
+        dataHora: "2026-11-11T10:46:00Z",
+        clienteNome: "Mercadinho São Judas",
+        latitude: -23.56700,
+        longitude: -46.66200
+      }
+    ]
   }
 };

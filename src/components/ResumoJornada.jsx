@@ -14,7 +14,7 @@ import {
 export default function ResumoJornada({ jornada, rotaDetalhada, isLoadingRota }) {
   if (!jornada) return null;
 
-  const coordenadas = rotaDetalhada?.coordenadas || [];
+  const coordenadas = rotaDetalhada?.coordenadas || rotaDetalhada?.localizacoes || [];
   const eventos = rotaDetalhada?.eventos || [];
   
   const totalPontosGps = coordenadas.length;
@@ -36,10 +36,10 @@ export default function ResumoJornada({ jornada, rotaDetalhada, isLoadingRota })
   const horaPrimeira = primeiraCoordenada ? formatTime(primeiraCoordenada.dataHora) : '--:--';
   const horaUltima = ultimaCoordenada ? formatTime(ultimaCoordenada.dataHora) : '--:--';
 
-  const isEmAndamento = jornada.status === 'EM ANDAMENTO';
+  const isEmAndamento = jornada.status === 'EM ANDAMENTO' || jornada.status === 'EM_ANDAMENTO';
 
   return (
-    <div className="bg-white border-b border-[#eaecef] p-3.5 z-20 shadow-xs">
+    <div className="bg-white border-b border-[#eaecef] p-3.5 z-20 shadow-xs shrink-0">
       <div className="flex flex-wrap items-center justify-between gap-3">
         
         {/* Identificação do Veículo e Motorista */}

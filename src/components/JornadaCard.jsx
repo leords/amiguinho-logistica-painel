@@ -2,7 +2,7 @@ import React from 'react';
 import { User, Truck, Clock, Navigation, CheckCircle, ChevronRight, PackageCheck } from 'lucide-react';
 
 export default function JornadaCard({ jornada, isSelected, onSelect }) {
-  const isEmAndamento = jornada.status === 'EM ANDAMENTO';
+  const isEmAndamento = jornada.status === 'EM ANDAMENTO' || jornada.status === 'EM_ANDAMENTO';
 
   // Formatador de hora amigável
   const formatTime = (isoString) => {

@@ -38,7 +38,7 @@ export default function Header({
 
   return (
     <>
-      <header className="bg-white border-b border-[#eaecef] px-4 lg:px-6 py-3.5 sticky top-0 z-40 shadow-sm faixaBordaTopo">
+      <header className="bg-white border-b border-[#eaecef] px-4 lg:px-6 py-3 shrink-0 z-40 shadow-sm faixaBordaTopo">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           
           {/* Identidade Visual Amigão - Seção Cargas & Logística */}

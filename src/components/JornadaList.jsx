@@ -25,17 +25,17 @@ export default function JornadaList({
 
       if (!matchesSearch) return false;
 
-      if (statusFilter === 'EM ANDAMENTO') return j.status === 'EM ANDAMENTO';
-      if (statusFilter === 'FINALIZADA') return j.status === 'FINALIZADA';
+      if (statusFilter === 'EM ANDAMENTO') return j.status === 'EM ANDAMENTO' || j.status === 'EM_ANDAMENTO';
+      if (statusFilter === 'FINALIZADA') return j.status === 'FINALIZADA' || j.status === 'CONCLUIDA';
       return true;
     });
   }, [jornadas, searchTerm, statusFilter]);
 
-  const emAndamentoCount = jornadas.filter((j) => j.status === 'EM ANDAMENTO').length;
-  const finalizadasCount = jornadas.filter((j) => j.status === 'FINALIZADA').length;
+  const emAndamentoCount = jornadas.filter((j) => j.status === 'EM ANDAMENTO' || j.status === 'EM_ANDAMENTO').length;
+  const finalizadasCount = jornadas.filter((j) => j.status === 'FINALIZADA' || j.status === 'CONCLUIDA').length;
 
   return (
-    <aside className="w-full lg:w-96 bg-white border-r border-[#eaecef] flex flex-col h-[calc(100vh-69px)] overflow-hidden shrink-0 shadow-xs">
+    <aside className="w-full lg:w-96 bg-white border-r border-[#eaecef] flex flex-col h-full overflow-hidden shrink-0 shadow-xs">
       
       {/* Cabeçalho da Barra Lateral */}
       <div className="p-4 border-b border-[#eaecef] bg-white space-y-3">

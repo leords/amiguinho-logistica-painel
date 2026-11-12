@@ -56,7 +56,7 @@ export const setStoredMockMode = (active) => {
 export const fetchJornadas = async (data, forceMock = false) => {
   if (forceMock) {
     // Simula delay de rede
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
     return mockJornadas;
   }
 
@@ -64,9 +64,13 @@ export const fetchJornadas = async (data, forceMock = false) => {
     const response = await api.get('/api/v1/jornadas', {
       params: { data },
     });
-    return response.data;
+    const resp = response.data;
+    if (Array.isArray(resp)) return resp;
+    if (Array.isArray(resp?.dados)) return resp.dados;
+    if (Array.isArray(resp?.jornadas)) return resp.jornadas;
+    return [];
   } catch (error) {
-    console.warn('[API Amigão] Falha ao conectar na API real, ativando fallback ou reportando erro:', error.message);
+    console.warn('[API Amigão] Falha ao conectar na API real:', error.message);
     throw error;
   }
 };
@@ -77,7 +81,7 @@ export const fetchJornadas = async (data, forceMock = false) => {
  */
 export const fetchRotaJornada = async (id, forceMock = false) => {
   if (forceMock) {
-    await new Promise((r) => setTimeout(r, 450));
+    await new Promise((r) => setTimeout(r, 350));
     const rota = mockRotas[id] || {
       jornadaId: id,
       coordenadas: [],
@@ -88,7 +92,28 @@ export const fetchRotaJornada = async (id, forceMock = false) => {
 
   try {
     const response = await api.get(`/api/v1/jornadas/${id}/rota`);
-    return response.data;
+    const payload = response.data?.dados || response.data || {};
+    const rawCoords = payload.coordenadas || payload.localizacoes || [];
+    const coordenadas = rawCoords.map((c) => ({
+      ...c,
+      latitude: typeof c.latitude === 'string' ? parseFloat(c.latitude) : c.latitude,
+      longitude: typeof c.longitude === 'string' ? parseFloat(c.longitude) : c.longitude,
+      dataHora: c.dataHora || c.criadoEm
+    })).filter((c) => !isNaN(c.latitude) && !isNaN(c.longitude));
+
+    const rawEventos = payload.eventos || [];
+    const eventos = rawEventos.map((e) => ({
+      ...e,
+      latitude: typeof e.latitude === 'string' ? parseFloat(e.latitude) : e.latitude,
+      longitude: typeof e.longitude === 'string' ? parseFloat(e.longitude) : e.longitude,
+      dataHora: e.dataHora || e.criadoEm
+    })).filter((e) => !isNaN(e.latitude) && !isNaN(e.longitude));
+
+    return {
+      ...payload,
+      coordenadas,
+      eventos
+    };
   } catch (error) {
     console.warn(`[API Amigão] Falha ao buscar rota ${id}:`, error.message);
     throw error;

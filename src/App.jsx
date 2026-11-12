@@ -124,7 +124,7 @@ export default function App() {
   }, [selectedJornada?.id, loadRota]);
 
   return (
-    <div className="min-h-screen bg-[#f2f4f7] flex flex-col text-[#1a1f2e] font-sans">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#f2f4f7] text-[#1a1f2e] font-sans">
       
       {/* 1. Cabeçalho Oficial Amigão com Filtros, JWT e Modo */}
       <Header
@@ -139,7 +139,7 @@ export default function App() {
       />
 
       {/* 2. Área Principal: Sidebar de Jornadas + Painel de Mapa & Métricas */}
-      <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-69px)] overflow-hidden">
+      <main className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
         
         {/* Barra Lateral: Lista de Jornadas com Filtro de Status */}
         <JornadaList
@@ -156,7 +156,7 @@ export default function App() {
         />
 
         {/* Área Central / Direita: Resumo de Métricas + Mapa Interativo */}
-        <section className="flex-1 flex flex-col h-full overflow-hidden bg-[#f2f4f7] relative">
+        <section className="flex-1 min-h-0 h-full flex flex-col overflow-hidden bg-[#f2f4f7] relative">
           
           {/* Painel de Métricas da Jornada Ativa */}
           {selectedJornada && (
@@ -168,7 +168,7 @@ export default function App() {
           )}
 
           {/* Visualizador do Mapa com Leaflet */}
-          <div className="flex-1 relative w-full h-full">
+          <div className="flex-1 min-h-0 relative w-full h-full overflow-hidden">
             <MapaRota
               selectedJornada={selectedJornada}
               rotaDetalhada={rotaDetalhada}
