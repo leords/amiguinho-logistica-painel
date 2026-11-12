@@ -2,84 +2,277 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* ── 1. IDENTIDADE AMIGÃO (Laranja Primário) ── */
+  --orange: #ff8c00;          /* Cor primária de destaque, botões e ações da marca */
+  --orange-light: #fff3e0;    /* Fundo suave para tags, badges e cards em foco */
+  --orange-mid: #ffd699;      /* Bordas sutis de elementos em laranja */
+
+  /* ── 2. SUCESSO & FINANCEIRO (Verde) ── */
+  --green: #2f9e44;           /* Vendas concluídas, valores positivos, pagamentos baixados */
+  --green-dark: #2b8a3e;      /* Botões de exportação e hover de confirmação */
+  --green-light: #ebfbee;     /* Fundo de badges "Concluído", "Baixado", "Ativo" */
+  --green-mid: #8ce99a;       /* Bordas de sucesso */
+
+  /* ── 3. GESTÃO & CADASTROS (Azul Corporativo) ── */
+  --blue: #1971c2;            /* Usuários, relatórios, veículos, tabelas */
+  --blue-light: #e7f5ff;      /* Fundo suave de cards institucionais */
+  --blue-mid: #a5d8ff;        /* Bordas de seleção */
+
+  /* ── 4. LOGÍSTICA & CARGAS (Roxo / Púrpura) ── */
+  --purple: #7048e8;          /* Módulo de Cargas, Romaneios e Expedição */
+  --purple-light: #f3f0ff;    /* Fundo de cards e ícones de logística */
+  --purple-mid: #b197fc;      /* Bordas de logística */
+
+  /* ── 5. PERIGO, CANCELAMENTOS & DÉBITOS (Vermelho) ── */
+  --red: #c92a2a;             /* Exclusão, erros, pedidos cancelados, diferenças negativas */
+  --red-light: #fff5f5;       /* Fundo de badges "Cancelado", "Pendente em Aberto" */
+  --red-mid: #ffc9c9;         /* Bordas de alerta de erro */
+
+  /* ── 6. ATENÇÃO & EM ABERTO (Amarelo / Âmbar) ── */
+  --yellow-text: #e67700;     /* Texto de aviso, "Aberto", "Orçamentos", "Parcial" */
+  --yellow-light: #fff9db;    /* Fundo de badges de status em aberto */
+  --yellow-mid: #ffe066;      /* Borda de aviso */
+
+  /* ── 7. NEUTROS, FUNDOS & SUPERFÍCIES ── */
+  --gray-900: #1a1f2e;        /* Texto principal (títulos de alto contraste) */
+  --gray-700: #495057;        /* Texto secundário (subtítulos e rótulos) */
+  --gray-500: #868e96;        /* Placeholders, ícones neutros e legendas */
+  --gray-300: #dee2e6;        /* Bordas de inputs e botões neutros */
+  --gray-100: #f8f9fa;        /* Fundo de linhas de tabela e hover neutro */
+  --bg-app: #f2f4f7;          /* Fundo geral da página (neutro frio suave) */
+  --white: #ffffff;           /* Superfície de cards, modais e formulários */
+  --border: #eaecef;          /* Divisores e bordas estruturais de cards */
+
+  /* ── 8. ELEVAÇÕES & BORDAS ── */
+  --radius-sm: 8px;           /* Botões e inputs */
+  --radius-card: 14px;        /* Cards de dashboards, seções e modais */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.08), 0 6px 24px rgba(0, 0, 0, 0.06);
+
+  /* ── 9. TIPOGRAFIA OFICIAL ── */
+  --fonte-primaria: "Montserrat", "Segoe UI", system-ui, sans-serif;
+}
+
 @layer base {
   body {
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--gray-900);
+    font-family: var(--fonte-primaria);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbars */
+/* ── 2. GRADIENTES OFICIAIS DE DESTAQUE ── */
+.gradienteMarca {
+  background: linear-gradient(135deg, #ff8c00, #ffb347);
+}
+
+.gradienteCargas {
+  background: linear-gradient(135deg, #7048e8, #9775fa);
+}
+
+.gradienteSucesso {
+  background: linear-gradient(135deg, #2b8a3e, #2f9e44);
+}
+
+.faixaBordaTopo {
+  position: relative;
+}
+
+.faixaBordaTopo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #ff8c00 0%, #ff8c00 15%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── 3. PADRÃO SEMÂNTICO DE BADGES E STATUS ── */
+.badgeSucesso {
+  background: var(--green-light); /* #ebfbee */
+  color: var(--green);            /* #2f9e44 */
+  border: 1px solid var(--green-mid); /* #8ce99a */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeAlerta {
+  background: var(--yellow-light); /* #fff9db */
+  color: var(--yellow-text);       /* #e67700 */
+  border: 1px solid var(--yellow-mid); /* #ffe066 */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeErro {
+  background: var(--red-light);   /* #fff5f5 */
+  color: var(--red);              /* #c92a2a */
+  border: 1px solid var(--red-mid); /* #ffc9c9 */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeNeutro {
+  background: var(--orange-light); /* #fff3e0 */
+  color: var(--orange);            /* #ff8c00 */
+  border: 1px solid var(--orange-mid); /* #ffd699 */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeLogistica {
+  background: var(--purple-light); /* #f3f0ff */
+  color: var(--purple);            /* #7048e8 */
+  border: 1px solid var(--purple-mid); /* #b197fc */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgeGestao {
+  background: var(--blue-light);   /* #e7f5ff */
+  color: var(--blue);              /* #1971c2 */
+  border: 1px solid var(--blue-mid); /* #a5d8ff */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── 4. BOTÃO VOLTAR PADRÃO ── */
+.botaoVoltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: #ffffff;
+  border: 1.5px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.botaoVoltar:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  color: #1a1f2e;
+}
+
+/* ── 5. SCROLLBAR SUAVE TEMA CLARO ── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f3f5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #ced4da;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #adb5bd;
 }
 
-/* Leaflet Container & z-index fixes */
+/* ── 6. CUSTOMIZAÇÃO LEAFLET TEMA AMIGÃO ── */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background-color: #0f172a !important;
-  font-family: inherit !important;
+  background-color: #e9ecef !important;
+  font-family: var(--fonte-primaria) !important;
 }
 
-/* Leaflet Popups Customization */
 .leaflet-popup-content-wrapper {
-  background: #1e293b !important;
-  color: #f1f5f9 !important;
-  border: 1px solid #334155 !important;
-  border-radius: 0.75rem !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+  background: #ffffff !important;
+  color: var(--gray-900) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-md) !important;
   padding: 0 !important;
+  overflow: hidden;
 }
 
 .leaflet-popup-content {
   margin: 0 !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
 }
 
 .leaflet-popup-tip {
-  background: #1e293b !important;
-  border-top: 1px solid #334155 !important;
-  border-left: 1px solid #334155 !important;
+  background: #ffffff !important;
+  border-top: 1px solid var(--border) !important;
+  border-left: 1px solid var(--border) !important;
 }
 
 .leaflet-popup-close-button {
-  color: #94a3b8 !important;
-  padding: 8px 10px 0 0 !important;
+  color: var(--gray-500) !important;
+  padding: 10px 12px 0 0 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
 }
 .leaflet-popup-close-button:hover {
-  color: #f8fafc !important;
+  color: var(--gray-900) !important;
 }
 
-/* Custom Marker Pulsing for Real-Time / In-Progress */
-@keyframes ping-slow {
+/* Efeito de Pulso Suave para entregadores ativos */
+@keyframes ping-radar {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    box-shadow: 0 0 0 0 rgba(112, 72, 232, 0.7);
   }
   70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 12px rgba(112, 72, 232, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 0 rgba(112, 72, 232, 0);
   }
 }
 
 .marker-pulse-active {
-  animation: ping-slow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  animation: ping-radar 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }

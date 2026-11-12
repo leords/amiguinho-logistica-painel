@@ -76,7 +76,7 @@ export default function App() {
       setErrorJornadas(
         err.response?.data?.message || 
         err.message || 
-        'Não foi possível conectar com a API de jornadas. Verifique a URL ou o token JWT.'
+        'Não foi possível conectar com a API de jornadas. Verifique se o servidor está ativo ou o token JWT.'
       );
       setJornadas([]);
       setSelectedJornada(null);
@@ -101,7 +101,7 @@ export default function App() {
       setErrorRota(
         err.response?.data?.message || 
         err.message || 
-        'Erro ao carregar rastro GPS da jornada.'
+        'Erro ao carregar telemetria da rota.'
       );
       setRotaDetalhada(null);
     } finally {
@@ -124,9 +124,9 @@ export default function App() {
   }, [selectedJornada?.id, loadRota]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col text-slate-100">
+    <div className="min-h-screen bg-[#f2f4f7] flex flex-col text-[#1a1f2e] font-sans">
       
-      {/* 1. Barra Superior com Filtros, JWT e Modo */}
+      {/* 1. Cabeçalho Oficial Amigão com Filtros, JWT e Modo */}
       <Header
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
@@ -139,9 +139,9 @@ export default function App() {
       />
 
       {/* 2. Área Principal: Sidebar de Jornadas + Painel de Mapa & Métricas */}
-      <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-65px)] overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-69px)] overflow-hidden">
         
-        {/* Barra Lateral: Lista de Jornadas */}
+        {/* Barra Lateral: Lista de Jornadas com Filtro de Status */}
         <JornadaList
           jornadas={jornadas}
           selectedJornada={selectedJornada}
@@ -155,10 +155,10 @@ export default function App() {
           }}
         />
 
-        {/* Área Central / Direita: Resumo de Métricas + Mapa */}
-        <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950 relative">
+        {/* Área Central / Direita: Resumo de Métricas + Mapa Interativo */}
+        <section className="flex-1 flex flex-col h-full overflow-hidden bg-[#f2f4f7] relative">
           
-          {/* Painel de Métricas da Jornada Selecionada */}
+          {/* Painel de Métricas da Jornada Ativa */}
           {selectedJornada && (
             <ResumoJornada
               jornada={selectedJornada}
@@ -167,7 +167,7 @@ export default function App() {
             />
           )}
 
-          {/* Visualizador do Mapa Interativo com Leaflet */}
+          {/* Visualizador do Mapa com Leaflet */}
           <div className="flex-1 relative w-full h-full">
             <MapaRota
               selectedJornada={selectedJornada}

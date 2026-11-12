@@ -3,11 +3,12 @@ import {
   MapPin, 
   PackageCheck, 
   Clock, 
-  Activity, 
+  Navigation, 
   Truck, 
   User, 
-  Calendar,
-  AlertTriangle
+  CheckCircle,
+  AlertTriangle,
+  Radio
 } from 'lucide-react';
 
 export default function ResumoJornada({ jornada, rotaDetalhada, isLoadingRota }) {
@@ -38,81 +39,108 @@ export default function ResumoJornada({ jornada, rotaDetalhada, isLoadingRota })
   const isEmAndamento = jornada.status === 'EM ANDAMENTO';
 
   return (
-    <div className="bg-slate-900/95 border-b border-slate-800 p-3.5 backdrop-blur z-20">
+    <div className="bg-white border-b border-[#eaecef] p-3.5 z-20 shadow-xs">
       <div className="flex flex-wrap items-center justify-between gap-3">
         
-        {/* Identificação da Jornada */}
+        {/* Identificação do Veículo e Motorista */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400">
+          <div className="p-2.5 rounded-[10px] bg-[#f3f0ff] border border-[#b197fc]/40 text-[#7048e8] shrink-0">
             <Truck className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-extrabold text-[#1a1f2e] tracking-tight">
                 {jornada.veiculoId}
               </h3>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                isEmAndamento 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse' 
-                  : 'bg-slate-800 text-slate-300 border border-slate-700'
-              }`}>
-                {jornada.status}
-              </span>
+              {isEmAndamento ? (
+                <span className="badgeAlerta !text-[10px] !py-0.5 !px-2">
+                  <span className="w-2 h-2 rounded-full bg-[#e67700] animate-pulse"></span>
+                  EM ROTA
+                </span>
+              ) : (
+                <span className="badgeSucesso !text-[10px] !py-0.5 !px-2">
+                  <CheckCircle className="w-3 h-3 text-[#2f9e44]" />
+                  CONCLUÍDA
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-              <span className="flex items-center gap-1">
-                <User className="w-3 h-3 text-slate-500" />
+            <div className="flex items-center gap-2 text-xs text-[#868e96] mt-0.5 font-medium">
+              <span className="flex items-center gap-1 text-[#495057]">
+                <User className="w-3.5 h-3.5 text-[#868e96]" />
                 {jornada.usuarioNome || `ID: ${jornada.usuarioId}`}
               </span>
               <span>•</span>
-              <span className="font-mono text-slate-300">
-                {(jornada.distanciaTotalKm ?? 0).toFixed(1)} km
+              <span className="font-bold text-[#1971c2]">
+                Início: {formatTime(jornada.dataInicio)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Métricas Principais em Chips */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        {/* Chips de KPIs e Métricas Operacionais */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           
-          {/* Total de Pontos GPS */}
-          <div className="flex items-center gap-2 bg-slate-800/80 border border-slate-700/70 rounded-lg px-3 py-1.5">
-            <MapPin className="w-4 h-4 text-sky-400" />
+          {/* Pontos GPS */}
+          <div className="flex items-center gap-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] px-3 py-1.5">
+            <div className="w-6 h-6 rounded-full bg-[#e7f5ff] text-[#1971c2] flex items-center justify-center shrink-0">
+              <MapPin className="w-3.5 h-3.5" />
+            </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold leading-none">
+              <p className="text-[10px] text-[#868e96] uppercase font-bold leading-none">
                 Pontos GPS
               </p>
-              <p className="text-xs font-bold text-white mt-1 leading-none font-mono">
+              <p className="text-xs font-extrabold text-[#1a1f2e] mt-1 leading-none font-mono">
                 {isLoadingRota ? '...' : totalPontosGps}
               </p>
             </div>
           </div>
 
-          {/* Total de Eventos / Entregas */}
-          <div className="flex items-center gap-2 bg-slate-800/80 border border-slate-700/70 rounded-lg px-3 py-1.5">
-            <PackageCheck className="w-4 h-4 text-emerald-400" />
+          {/* Eventos / Paradas */}
+          <div className="flex items-center gap-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] px-3 py-1.5">
+            <div className="w-6 h-6 rounded-full bg-[#ebfbee] text-[#2f9e44] flex items-center justify-center shrink-0">
+              <PackageCheck className="w-3.5 h-3.5" />
+            </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold leading-none">
-                Eventos / Paradas
+              <p className="text-[10px] text-[#868e96] uppercase font-bold leading-none">
+                Eventos / Baixas
               </p>
-              <p className="text-xs font-bold text-white mt-1 leading-none font-mono">
+              <p className="text-xs font-extrabold text-[#1a1f2e] mt-1 leading-none font-mono">
                 {isLoadingRota ? '...' : totalEventos}
               </p>
             </div>
           </div>
 
-          {/* Horários 1ª e Última Coordenada */}
-          <div className="flex items-center gap-2 bg-slate-800/80 border border-slate-700/70 rounded-lg px-3 py-1.5">
-            <Clock className="w-4 h-4 text-amber-400" />
+          {/* Distância Percorrida */}
+          <div className="flex items-center gap-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] px-3 py-1.5">
+            <div className="w-6 h-6 rounded-full bg-[#fff3e0] text-[#ff8c00] flex items-center justify-center shrink-0">
+              <Navigation className="w-3.5 h-3.5" />
+            </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold leading-none">
-                Primeira &rarr; Última Coordenada
+              <p className="text-[10px] text-[#868e96] uppercase font-bold leading-none">
+                Distância Total
               </p>
-              <p className="text-xs font-semibold text-slate-200 mt-1 leading-none font-mono">
-                {isLoadingRota ? '...' : `${horaPrimeira} - ${horaUltima}`}
+              <p className="text-xs font-extrabold text-[#1a1f2e] mt-1 leading-none font-mono">
+                {(jornada.distanciaTotalKm ?? 0).toFixed(1)} km
               </p>
             </div>
           </div>
+
+          {/* Última Transmissão */}
+          {ultimaCoordenada && (
+            <div className="hidden xl:flex items-center gap-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] px-3 py-1.5">
+              <div className="w-6 h-6 rounded-full bg-[#f3f0ff] text-[#7048e8] flex items-center justify-center shrink-0">
+                <Clock className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <p className="text-[10px] text-[#868e96] uppercase font-bold leading-none">
+                  Último Sinal
+                </p>
+                <p className="text-xs font-extrabold text-[#1a1f2e] mt-1 leading-none font-mono">
+                  {horaUltima}
+                </p>
+              </div>
+            </div>
+          )}
 
         </div>
 

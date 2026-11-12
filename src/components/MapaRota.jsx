@@ -10,12 +10,10 @@ import {
   Loader2, 
   MapPinOff, 
   Clock, 
-  Package, 
-  Calendar, 
-  AlertTriangle, 
+  Layers, 
   CheckCircle,
   Truck,
-  Layers
+  AlertCircle
 } from 'lucide-react';
 
 // Subcomponente interno para ajustar o enquadramento (fitBounds) automaticamente
@@ -100,16 +98,16 @@ export default function MapaRota({
   // 1. Estado: Nenhuma jornada selecionada
   if (!selectedJornada) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 shadow-inner">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#f2f4f7] h-full text-center">
+        <div className="w-16 h-16 rounded-[14px] bg-white border border-[#eaecef] shadow-sm flex items-center justify-center text-[#7048e8] mb-4">
           <Truck className="w-8 h-8" />
         </div>
-        <h3 className="text-base font-semibold text-slate-200">
+        <h3 className="text-base font-extrabold text-[#1a1f2e]">
           Nenhuma jornada selecionada
         </h3>
-        <p className="text-xs text-slate-400 max-w-sm mt-1.5 leading-relaxed">
-          Selecione uma viagem na lista lateral para carregar a rota percorrida, 
-          marcador de partida, paradas de entrega e última localização do caminhão.
+        <p className="text-xs text-[#868e96] max-w-sm mt-1.5 leading-relaxed">
+          Selecione uma viagem na lista à esquerda para carregar o traçado de telemetria GPS, 
+          pontos de parada e status das entregas.
         </p>
       </div>
     );
@@ -118,16 +116,15 @@ export default function MapaRota({
   // 2. Estado: Carregando rota da jornada selecionada
   if (isLoadingRota) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 text-center">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#f2f4f7] h-full text-center">
         <div className="relative mb-4">
-          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-          <div className="absolute inset-0 blur-sm bg-blue-500/30 animate-pulse rounded-full"></div>
+          <Loader2 className="w-10 h-10 text-[#ff8c00] animate-spin" />
         </div>
-        <h4 className="text-sm font-semibold text-slate-200">
+        <h4 className="text-sm font-extrabold text-[#1a1f2e]">
           Carregando telemetria da rota...
         </h4>
-        <p className="text-xs text-slate-400 mt-1">
-          Obtendo coordenadas de GPS e registros de eventos para o veículo <span className="text-slate-300 font-mono font-medium">{selectedJornada.veiculoId}</span>.
+        <p className="text-xs text-[#868e96] mt-1">
+          Obtendo coordenadas de GPS e paradas para o veículo <strong className="text-[#1a1f2e] font-mono">{selectedJornada.veiculoId}</strong>.
         </p>
       </div>
     );
@@ -136,58 +133,58 @@ export default function MapaRota({
   // 3. Estado: Jornada recém-iniciada sem coordenadas
   if (sortedCoordenadas.length === 0 && eventos.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#f2f4f7] h-full text-center">
+        <div className="w-14 h-14 rounded-[14px] bg-[#fff9db] border border-[#ffe066] flex items-center justify-center text-[#e67700] mb-4 shadow-sm">
           <MapPinOff className="w-7 h-7" />
         </div>
-        <h4 className="text-sm font-bold text-slate-200">
+        <h4 className="text-sm font-extrabold text-[#1a1f2e]">
           Jornada recém-iniciada, aguardando envio do primeiro lote do app
         </h4>
-        <p className="text-xs text-slate-400 max-w-md mt-2 leading-relaxed">
-          O entregador iniciou a jornada, mas o dispositivo embarcado ainda não sincronizou 
+        <p className="text-xs text-[#868e96] max-w-md mt-2 leading-relaxed">
+          O entregador iniciou o expediente, mas o aplicativo embarcado ainda não sincronizou 
           as primeiras coordenadas de GPS com a central de logística.
         </p>
-        <span className="mt-4 text-[11px] font-mono bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1.5 rounded-lg">
-          Status da Jornada: {selectedJornada.status}
+        <span className="mt-4 text-[11px] font-mono bg-white border border-[#dee2e6] text-[#495057] px-3.5 py-1.5 rounded-[8px] shadow-xs">
+          Status da Rota: <strong className="text-[#e67700]">{selectedJornada.status}</strong>
         </span>
       </div>
     );
   }
 
-  // Centro padrão inicial (fallback se não houver bounds)
+  // Centro padrão inicial
   const defaultCenter = pontoPartida 
     ? [pontoPartida.latitude, pontoPartida.longitude] 
-    : [-23.55052, -46.633308]; // São Paulo como referência Distribuidora Amigão
+    : [-22.1256, -51.3889]; // Presidente Prudente (Sede Amigão)
 
   return (
     <div className="relative w-full h-full flex-1">
       
-      {/* Legenda Flutuante Operacional */}
-      <div className="absolute bottom-4 left-4 z-[500] bg-slate-900/90 backdrop-blur border border-slate-800 rounded-xl p-3 shadow-xl text-xs space-y-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 text-slate-300 font-bold uppercase tracking-wider text-[10px] pb-1 border-b border-slate-800">
-          <Layers className="w-3 h-3 text-blue-400" /> Legenda do Mapa
+      {/* Legenda Flutuante Operacional - Design System Amigão */}
+      <div className="absolute bottom-4 left-4 z-[500] bg-white border border-[#eaecef] rounded-[14px] p-3.5 shadow-md text-xs space-y-2 pointer-events-auto">
+        <div className="flex items-center gap-1.5 text-[#1a1f2e] font-extrabold uppercase tracking-wider text-[10px] pb-1.5 border-b border-[#eaecef]">
+          <Layers className="w-3.5 h-3.5 text-[#7048e8]" /> Legenda do Traçado
         </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-1.5 text-[11px]">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-green-600 border border-white"></span>
-            <span className="text-slate-300">Ponto de Partida</span>
+            <span className="w-3 h-3 rounded-full bg-[#2f9e44] border-2 border-white shadow-xs"></span>
+            <span className="text-[#495057] font-semibold">Ponto de Partida</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`w-3 h-3 rounded-full ${isEmAndamento ? 'bg-sky-500 animate-pulse' : 'bg-red-600'} border border-white`}></span>
-            <span className="text-slate-300">{isEmAndamento ? 'Posição Atual' : 'Ponto Final'}</span>
+            <span className={`w-3 h-3 rounded-full ${isEmAndamento ? 'bg-[#7048e8] animate-pulse' : 'bg-[#c92a2a]'} border-2 border-white shadow-xs`}></span>
+            <span className="text-[#495057] font-semibold">{isEmAndamento ? 'Caminhão em Rota' : 'Ponto Final'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-blue-600 border border-white"></span>
-            <span className="text-slate-300">Baixa Realizada</span>
+            <span className="w-3 h-3 rounded-full bg-[#2f9e44] border-2 border-white shadow-xs"></span>
+            <span className="text-[#495057] font-semibold">Entrega Concluída</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-amber-600 border border-white"></span>
-            <span className="text-slate-300">Cliente Ausente</span>
+            <span className="w-3 h-3 rounded-full bg-[#e67700] border-2 border-white shadow-xs"></span>
+            <span className="text-[#495057] font-semibold">Cliente Ausente</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 pt-1 border-t border-slate-800 text-[10px] text-slate-400">
-          <span className="w-5 h-1 bg-blue-500 rounded"></span>
-          <span>Traçado da Rota GPS</span>
+        <div className="flex items-center gap-2 pt-1.5 border-t border-[#eaecef] text-[10px] text-[#868e96] font-medium">
+          <span className="w-6 h-1.5 bg-[#7048e8] rounded-full"></span>
+          <span>Rastro GPS Percorrido (Cargas Amigão)</span>
         </div>
       </div>
 
@@ -206,40 +203,42 @@ export default function MapaRota({
         {/* Ajuste Automático dos Limites da Rota */}
         {allBounds.length > 0 && <FitBoundsController bounds={allBounds} />}
 
-        {/* Traçado Contínuo da Rota (Polyline Azul Vibrante) */}
+        {/* Traçado Contínuo da Rota (Polyline Roxo de Cargas / Logística #7048e8) */}
         {polylinePositions.length > 1 && (
           <Polyline
             positions={polylinePositions}
             pathOptions={{
-              color: '#2563eb', // Azul vibrante Amigão
-              weight: 4.5,
-              opacity: 0.9,
+              color: '#7048e8', // Cor oficial de Logística e Cargas Amigão
+              weight: 5,
+              opacity: 0.85,
               lineCap: 'round',
               lineJoin: 'round',
             }}
           />
         )}
 
-        {/* 1. Marcador de Ponto de Partida (Verde) */}
+        {/* 1. Marcador de Ponto de Partida (Verde Sucesso) */}
         {pontoPartida && (
           <Marker
             position={[pontoPartida.latitude, pontoPartida.longitude]}
             icon={createStartIcon()}
           >
             <Popup>
-              <div className="p-3 min-w-[220px]">
-                <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs uppercase mb-1">
-                  <CheckCircle className="w-4 h-4" /> Início da Jornada
+              <div className="p-3.5 min-w-[230px]">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="badgeSucesso !text-[10px] !py-0.5 !px-2">
+                    <CheckCircle className="w-3 h-3 text-[#2f9e44]" /> Início da Jornada
+                  </span>
                 </div>
-                <h5 className="font-semibold text-slate-100 text-sm">
+                <h5 className="font-extrabold text-[#1a1f2e] text-sm">
                   Ponto de Partida
                 </h5>
-                <div className="mt-2 text-xs text-slate-300 space-y-1">
+                <div className="mt-2 text-xs text-[#495057] space-y-1">
                   <p className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Horário: <strong>{formatDateTime(pontoPartida.dataHora)}</strong></span>
+                    <Clock className="w-3.5 h-3.5 text-[#868e96]" />
+                    <span>Horário: <strong className="text-[#1a1f2e]">{formatDateTime(pontoPartida.dataHora)}</strong></span>
                   </p>
-                  <p className="text-[11px] text-slate-400 font-mono">
+                  <p className="text-[11px] text-[#868e96] font-mono">
                     Coord: {pontoPartida.latitude.toFixed(5)}, {pontoPartida.longitude.toFixed(5)}
                   </p>
                 </div>
@@ -248,32 +247,39 @@ export default function MapaRota({
           </Marker>
         )}
 
-        {/* 2. Marcador de Ponto Final / Atual (Vermelho ou Azul Pulsante) */}
+        {/* 2. Marcador de Ponto Final / Atual (Roxo Logística ou Vermelho) */}
         {pontoFinal && (
           <Marker
             position={[pontoFinal.latitude, pontoFinal.longitude]}
             icon={createEndIcon(isEmAndamento)}
           >
             <Popup>
-              <div className="p-3 min-w-[220px]">
-                <div className={`flex items-center gap-1.5 font-bold text-xs uppercase mb-1 ${isEmAndamento ? 'text-sky-400' : 'text-rose-400'}`}>
-                  <Truck className="w-4 h-4" />
-                  {isEmAndamento ? 'Última Posição Registrada' : 'Fim da Jornada'}
+              <div className="p-3.5 min-w-[230px]">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  {isEmAndamento ? (
+                    <span className="badgeAlerta !text-[10px] !py-0.5 !px-2">
+                      <Truck className="w-3 h-3 text-[#e67700]" /> Caminhão em Trânsito
+                    </span>
+                  ) : (
+                    <span className="badgeErro !text-[10px] !py-0.5 !px-2">
+                      <CheckCircle className="w-3 h-3 text-[#c92a2a]" /> Fim da Jornada
+                    </span>
+                  )}
                 </div>
-                <h5 className="font-semibold text-slate-100 text-sm">
-                  {isEmAndamento ? 'Caminhão em Trânsito' : 'Retorno ao Depósito'}
+                <h5 className="font-extrabold text-[#1a1f2e] text-sm">
+                  {isEmAndamento ? 'Última Posição Registrada' : 'Retorno à Distribuidora'}
                 </h5>
-                <div className="mt-2 text-xs text-slate-300 space-y-1">
+                <div className="mt-2 text-xs text-[#495057] space-y-1">
                   <p className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Horário: <strong>{formatDateTime(pontoFinal.dataHora)}</strong></span>
+                    <Clock className="w-3.5 h-3.5 text-[#868e96]" />
+                    <span>Horário: <strong className="text-[#1a1f2e]">{formatDateTime(pontoFinal.dataHora)}</strong></span>
                   </p>
                   {pontoFinal.velocidadeKmH !== undefined && (
-                    <p className="text-slate-400 text-xs">
-                      Velocidade: <span className="text-slate-200 font-semibold">{pontoFinal.velocidadeKmH} km/h</span>
+                    <p className="text-[#868e96] text-xs">
+                      Velocidade: <span className="text-[#1a1f2e] font-bold">{pontoFinal.velocidadeKmH} km/h</span>
                     </p>
                   )}
-                  <p className="text-[11px] text-slate-400 font-mono">
+                  <p className="text-[11px] text-[#868e96] font-mono">
                     Coord: {pontoFinal.latitude.toFixed(5)}, {pontoFinal.longitude.toFixed(5)}
                   </p>
                 </div>
@@ -284,7 +290,10 @@ export default function MapaRota({
 
         {/* 3. Marcadores de Eventos (Entregas Realizadas, Clientes Ausentes) */}
         {eventos.map((evento, index) => {
-          const isRealizada = (evento.tipoEvento || '').toUpperCase().includes('REALIZADA');
+          const tipoUpper = (evento.tipoEvento || '').toUpperCase();
+          const isRealizada = tipoUpper.includes('REALIZADA') || tipoUpper.includes('SUCESSO') || tipoUpper.includes('CONCLUIDA');
+          const isAusente = tipoUpper.includes('AUSENTE') || tipoUpper.includes('CLIENTE_AUSENTE');
+
           return (
             <Marker
               key={evento.id || `evento-${index}`}
@@ -292,40 +301,46 @@ export default function MapaRota({
               icon={createEventIcon(evento.tipoEvento)}
             >
               <Popup>
-                <div className="p-3 min-w-[240px]">
+                <div className="p-3.5 min-w-[240px]">
                   {/* Badge de tipo de evento */}
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      isRealizada 
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    }`}>
-                      {evento.tipoEvento ? evento.tipoEvento.replace(/_/g, ' ') : 'EVENTO'}
-                    </span>
-                    <span className="font-mono text-[11px] text-slate-400 font-semibold">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    {isRealizada ? (
+                      <span className="badgeSucesso !text-[10px] !py-0.5 !px-2">
+                        ENTREGA REALIZADA
+                      </span>
+                    ) : isAusente ? (
+                      <span className="badgeAlerta !text-[10px] !py-0.5 !px-2">
+                        CLIENTE AUSENTE
+                      </span>
+                    ) : (
+                      <span className="badgeErro !text-[10px] !py-0.5 !px-2">
+                        {evento.tipoEvento ? evento.tipoEvento.replace(/_/g, ' ') : 'OCORRÊNCIA'}
+                      </span>
+                    )}
+                    <span className="font-mono text-[11px] text-[#868e96] font-bold">
                       {evento.pedidoId || `PED-${index + 1}`}
                     </span>
                   </div>
 
-                  {/* Nome do Cliente / Estabelecimento */}
-                  <h5 className="font-bold text-slate-100 text-sm">
+                  {/* Nome do Cliente */}
+                  <h5 className="font-extrabold text-[#1a1f2e] text-sm">
                     {evento.clienteNome || 'Cliente Amigão'}
                   </h5>
 
-                  {/* Descrição do Evento */}
+                  {/* Observação / Descrição */}
                   {evento.descricao && (
-                    <p className="text-xs text-slate-300 mt-1 bg-slate-900/60 p-1.5 rounded border border-slate-700/50">
+                    <p className="text-xs text-[#495057] mt-1.5 bg-[#f8f9fa] p-2 rounded-[8px] border border-[#eaecef]">
                       {evento.descricao}
                     </p>
                   )}
 
                   {/* Detalhes de Horário e Coordenada */}
-                  <div className="mt-2.5 pt-2 border-t border-slate-700/60 text-xs text-slate-300 space-y-1">
+                  <div className="mt-2.5 pt-2 border-t border-[#eaecef] text-xs text-[#495057] space-y-1">
                     <p className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Horário da Baixa: <strong>{formatDateTime(evento.dataHora)}</strong></span>
+                      <Clock className="w-3.5 h-3.5 text-[#868e96]" />
+                      <span>Baixa: <strong className="text-[#1a1f2e]">{formatDateTime(evento.dataHora)}</strong></span>
                     </p>
-                    <p className="text-[10px] text-slate-400 font-mono">
+                    <p className="text-[10px] text-[#868e96] font-mono">
                       Coord: {evento.latitude.toFixed(5)}, {evento.longitude.toFixed(5)}
                     </p>
                   </div>

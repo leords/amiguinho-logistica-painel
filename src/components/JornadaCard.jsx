@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Truck, Clock, Navigation, CheckCircle, AlertCircle, ChevronRight } from 'lucide-react';
+import { User, Truck, Clock, Navigation, CheckCircle, ChevronRight, PackageCheck } from 'lucide-react';
 
 export default function JornadaCard({ jornada, isSelected, onSelect }) {
   const isEmAndamento = jornada.status === 'EM ANDAMENTO';
@@ -21,81 +21,88 @@ export default function JornadaCard({ jornada, isSelected, onSelect }) {
   return (
     <div
       onClick={() => onSelect(jornada)}
-      className={`group relative p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+      className={`group relative p-3.5 rounded-[14px] border-[1.5px] transition-all duration-200 cursor-pointer ${
         isSelected
-          ? 'bg-blue-950/40 border-blue-500 shadow-md shadow-blue-500/10 ring-1 ring-blue-500'
-          : 'bg-slate-800/60 border-slate-700/70 hover:bg-slate-800 hover:border-slate-600'
+          ? 'bg-[#fffbf5] border-[#ff8c00] shadow-sm'
+          : 'bg-white border-[#eaecef] hover:border-[#ffd699] hover:shadow-xs'
       }`}
     >
-      {/* Indicador lateral quando selecionado */}
+      {/* Indicador lateral laranja quando selecionado */}
       {isSelected && (
-        <div className="absolute left-0 top-3 bottom-3 w-1 bg-blue-500 rounded-r"></div>
+        <div className="absolute left-0 top-3 bottom-3 w-1.5 bg-[#ff8c00] rounded-r-md"></div>
       )}
 
-      {/* Topo do Card: Entregador e Status Badge */}
+      {/* Topo do Card: Entregador e Status Badge Semântica */}
       <div className="flex items-start justify-between gap-2 mb-2.5">
-        <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-700/60 text-slate-300'}`}>
+        <div className="flex items-center gap-2.5">
+          <div className={`p-2 rounded-[8px] transition-colors ${
+            isSelected 
+              ? 'bg-[#fff3e0] text-[#ff8c00]' 
+              : 'bg-[#f8f9fa] text-[#495057] group-hover:bg-[#fff3e0] group-hover:text-[#ff8c00]'
+          }`}>
             <User className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white leading-tight group-hover:text-blue-400 transition-colors">
-              {jornada.usuarioNome || `Entregador ${jornada.usuarioId}`}
+            <h4 className="text-xs font-extrabold text-[#1a1f2e] leading-snug group-hover:text-[#ff8c00] transition-colors">
+              {jornada.usuarioNome || `Entregador #${jornada.usuarioId}`}
             </h4>
-            <span className="text-[11px] text-slate-400 font-mono">
+            <span className="text-[10px] text-[#868e96] font-mono">
               ID: {jornada.usuarioId}
             </span>
           </div>
         </div>
 
-        {/* Badge de Status */}
+        {/* Badge Semântica Conforme Padrão Amigão */}
         {isEmAndamento ? (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="badgeAlerta !text-[10px] !py-0.5 !px-2">
+            <span className="w-2 h-2 rounded-full bg-[#e67700] animate-pulse"></span>
             EM ANDAMENTO
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700/60 text-slate-300 border border-slate-600/50">
-            <CheckCircle className="w-2.5 h-2.5 text-blue-400" />
+          <span className="badgeSucesso !text-[10px] !py-0.5 !px-2">
+            <CheckCircle className="w-3 h-3 text-[#2f9e44]" />
             FINALIZADA
           </span>
         )}
       </div>
 
-      {/* Informações centrais: Veículo, Horários, Distância */}
-      <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-700/40 pt-2.5 mt-2">
+      {/* Informações Centrais: Veículo, Horários e Distância */}
+      <div className="space-y-1.5 text-xs border-t border-[#eaecef] pt-2.5 mt-2">
         
-        {/* Veículo */}
-        <div className="flex items-center gap-2 text-slate-300">
-          <Truck className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="truncate font-medium">{jornada.veiculoId}</span>
+        {/* Veículo / Caminhão com Tag de Logística */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[#495057]">
+            <Truck className="w-3.5 h-3.5 text-[#7048e8] shrink-0" />
+            <span className="font-bold text-[#1a1f2e]">{jornada.veiculoId}</span>
+          </div>
+          <span className="badgeNeutro !text-[10px] !py-0 !px-1.5 !font-mono">
+            {(jornada.distanciaTotalKm ?? 0).toFixed(1)} km
+          </span>
         </div>
 
-        {/* Horários */}
-        <div className="flex items-center justify-between text-slate-400">
+        {/* Linha do Tempo de Horário */}
+        <div className="flex items-center justify-between text-[#868e96] text-[11px]">
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <Clock className="w-3.5 h-3.5 text-[#868e96] shrink-0" />
             <span>
-              {horaInicio} &rarr; <span className={isEmAndamento ? 'text-emerald-400 font-semibold' : 'text-slate-300'}>{horaFim}</span>
+              {horaInicio} &rarr; <strong className={isEmAndamento ? 'text-[#e67700]' : 'text-[#495057]'}>{horaFim}</strong>
             </span>
           </div>
-
-          {/* Distância */}
-          <div className="flex items-center gap-1 text-slate-300 font-mono text-[11px]">
-            <Navigation className="w-3 h-3 text-blue-400 shrink-0" />
-            <span>{(jornada.distanciaTotalKm ?? 0).toFixed(1)} km</span>
-          </div>
+          <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-[#ff8c00] translate-x-1' : 'text-[#868e96]'}`} />
         </div>
 
       </div>
 
-      {/* Rodapé do Card com resumo de entregas se houver */}
+      {/* Rodapé com contagem de entregas se houver */}
       {jornada.totalEntregas !== undefined && (
-        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-700/30 text-[11px] text-slate-400">
-          <span>
-            Entregas: <strong className="text-slate-200">{jornada.entregasRealizadas ?? 0}/{jornada.totalEntregas}</strong>
+        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#eaecef] text-[11px] text-[#495057]">
+          <span className="flex items-center gap-1">
+            <PackageCheck className="w-3.5 h-3.5 text-[#2f9e44]" />
+            <span>Entregas Concluídas:</span>
           </span>
-          <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-blue-400 translate-x-1' : 'text-slate-500'}`} />
+          <span className="font-extrabold text-[#1a1f2e]">
+            {jornada.entregasRealizadas ?? 0}/{jornada.totalEntregas}
+          </span>
         </div>
       )}
     </div>
