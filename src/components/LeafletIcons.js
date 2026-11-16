@@ -9,15 +9,14 @@ L.Icon.Default.mergeOptions({
 });
 
 /**
- * Cores Oficiais do Design System Amigão:
- * --orange: #ff8c00
- * --green:  #2f9e44
- * --purple: #7048e8
- * --red:    #c92a2a
- * --yellow: #e67700
+ * Cores Oficiais Amiguinho Express:
+ * --brand-red: #e50914 (Vermelho do novo Logo)
+ * --orange:    #ff8c00 / #ff5d00 (Destaques)
+ * --green:     #2f9e44 (Sucesso / Concluído)
+ * --gray-dark: #1a1f2e (Base neutra)
  */
 
-// Marcador de Partida (Verde Sucesso Amigão: #2f9e44)
+// Marcador de Partida (Verde Sucesso Amiguinho Express: #2f9e44)
 export const createStartIcon = () => {
   return L.divIcon({
     className: 'custom-leaflet-marker',
@@ -37,8 +36,8 @@ export const createStartIcon = () => {
 
 // Marcador de Ponto Final ou Posição Atual do Veículo
 export const createEndIcon = (isEmAndamento = false) => {
-  // Se estiver em andamento usa o Roxo de Logística (#7048e8) com pulso radar, senão o Vermelho de Finalização (#c92a2a)
-  const bgColor = isEmAndamento ? '#7048e8' : '#c92a2a';
+  // Se estiver em andamento usa o Vermelho Oficial Amiguinho Express (#e50914) com pulso radar, senão o Tom Finalizador Escuro (#343a40)
+  const bgColor = isEmAndamento ? '#e50914' : '#343a40';
   const pulseClass = isEmAndamento ? 'marker-pulse-active' : '';
 
   return L.divIcon({
@@ -60,7 +59,7 @@ export const createEndIcon = (isEmAndamento = false) => {
 };
 
 // Marcador de Evento (Entregas Realizadas, Clientes Ausentes, Devoluções)
-export const createEventIcon = (tipoEvento = '') => {
+export const createEventIcon = (tipoEvento = '', isFocused = false) => {
   const tipoUpper = (tipoEvento || '').toUpperCase();
 
   let bgColor = '#1971c2'; // Gestão / Corporativo (#1971c2)
@@ -69,7 +68,7 @@ export const createEventIcon = (tipoEvento = '') => {
     <polyline points="3 7 12 13 21 7"></polyline>
   `;
 
-  if (tipoUpper.includes('REALIZADA') || tipoUpper.includes('SUCESSO') || tipoUpper.includes('CONCLUIDA')) {
+  if (tipoUpper.includes('REALIZADA') || tipoUpper.includes('SUCESSO') || tipoUpper.includes('CONCLUIDA') || tipoUpper.includes('BAIXA') || tipoUpper.includes('ENTREGA')) {
     bgColor = '#2f9e44'; // Sucesso (Verde #2f9e44)
     iconSvg = '<polyline points="20 6 9 17 4 12"></polyline>';
   } else if (tipoUpper.includes('AUSENTE') || tipoUpper.includes('CLIENTE_AUSENTE') || tipoUpper.includes('FECHADO')) {
@@ -88,18 +87,25 @@ export const createEventIcon = (tipoEvento = '') => {
     `;
   }
 
+  const outerSize = isFocused ? 36 : 28;
+  const innerSize = isFocused ? 32 : 26;
+  const pulseClass = isFocused ? 'marker-pulse-active' : '';
+  const borderAndShadow = isFocused
+    ? 'border: 3px solid #ff8c00; box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.45), 0 4px 12px rgba(0,0,0,0.3);'
+    : 'border: 2.5px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.2);';
+
   return L.divIcon({
     className: 'custom-leaflet-event-marker',
     html: `
-      <div style="position: relative; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
-        <div style="position: absolute; width: 26px; height: 26px; background: ${bgColor}; border-radius: 50%; border: 2.5px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.2);"></div>
-        <svg style="position: relative; z-index: 2; width: 13px; height: 13px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <div class="${pulseClass}" style="position: relative; width: ${outerSize}px; height: ${outerSize}px; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; width: ${innerSize}px; height: ${innerSize}px; background: ${bgColor}; border-radius: 50%; ${borderAndShadow}"></div>
+        <svg style="position: relative; z-index: 2; width: ${isFocused ? 16 : 13}px; height: ${isFocused ? 16 : 13}px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           ${iconSvg}
         </svg>
       </div>
     `,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14],
+    iconSize: [outerSize, outerSize],
+    iconAnchor: [outerSize / 2, outerSize / 2],
+    popupAnchor: [0, -outerSize / 2],
   });
 };

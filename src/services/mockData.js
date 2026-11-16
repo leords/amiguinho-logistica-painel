@@ -1,43 +1,72 @@
-// Dados de demonstração da Distribuidora de Bebidas Amigão
+// Dados de demonstração do Amiguinho Express
 export const mockJornadas = [
   {
     id: "jornada-001",
     usuarioId: "ENTR-842",
-    usuarioNome: "Carlos Silva (Amigão Rota 1)",
+    motoristaNome: "Carlos Silva",
+    usuarioNome: "Carlos Silva (Amiguinho Express Rota 1)",
     veiculoId: "CAM-04 (Mercedes Accelo - PLACA: BRA2E19)",
     dataInicio: "2026-11-11T07:30:00Z",
     dataFim: "2026-11-11T16:45:00Z",
     status: "FINALIZADA",
     distanciaTotalKm: 42.8,
+    velocidadeMediaKmH: 33,
+    velocidadeMaximaKmH: 45,
+    totalPedidos: 14,
     totalEntregas: 14,
     entregasRealizadas: 13,
-    clientesAusentes: 1
+    percentualEntregue: 93,
+    clientesAusentes: 1,
+    pedidos: [
+      { id: "PED-9801", clienteNome: "Bar & Lanchonete do Zé", endereco: "Av. Tiradentes, 450 - Centro", cidade: "Canoinhas", status: "entregue", entregue: true },
+      { id: "PED-9804", clienteNome: "Restaurante Sabor da Vila", endereco: "Rua Vidal Ramos, 120 - Campo d'Água Verde", cidade: "Canoinhas", status: "ausente", entregue: false },
+      { id: "PED-9807", clienteNome: "Empório dos Amigos", endereco: "Rua Paula Pereira, 890 - Centro", cidade: "Canoinhas", status: "entregue", entregue: true }
+    ]
   },
   {
     id: "jornada-002",
     usuarioId: "ENTR-105",
-    usuarioNome: "Marcos Souza (Amigão Rota 2)",
+    motoristaNome: "Marcos Souza",
+    usuarioNome: "Marcos Souza (Amiguinho Express Rota 2)",
     veiculoId: "CAM-07 (VW Delivery - PLACA: AMG7G22)",
     dataInicio: "2026-11-11T08:15:00Z",
     dataFim: null,
     status: "EM ANDAMENTO",
     distanciaTotalKm: 28.3,
+    velocidadeMediaKmH: 27,
+    velocidadeMaximaKmH: 41,
+    totalPedidos: 12,
     totalEntregas: 12,
     entregasRealizadas: 7,
-    clientesAusentes: 0
+    percentualEntregue: 58,
+    clientesAusentes: 0,
+    pedidos: [
+      { id: "PED-9810", clienteNome: "Panificadora Central", endereco: "Rua Coronel Diniz, 320 - Centro", cidade: "Irineópolis", status: "entregue", entregue: true },
+      { id: "PED-9812", clienteNome: "Supermercado Santa Cruz", endereco: "Av. 22 de Julho, 1050 - Centro", cidade: "Irineópolis", status: "pendente", entregue: false },
+      { id: "PED-9815", clienteNome: "Lanchonete Parada Obrigatória", endereco: "Rodovia BR-280, Km 220", cidade: "Irineópolis", status: "pendente", entregue: false }
+    ]
   },
   {
     id: "jornada-003",
     usuarioId: "ENTR-329",
-    usuarioNome: "Rafael Oliveira (Amigão Express)",
+    motoristaNome: "Rafael Oliveira",
+    usuarioNome: "Rafael Oliveira (Amiguinho Express)",
     veiculoId: "VAN-02 (Fiat Ducato - PLACA: BEB9D45)",
     dataInicio: "2026-11-11T09:00:00Z",
     dataFim: null,
     status: "EM ANDAMENTO",
-    distanciaTotalKm: 0.0,
+    distanciaTotalKm: 14.5,
+    velocidadeMediaKmH: 29,
+    velocidadeMaximaKmH: 38,
+    totalPedidos: 8,
     totalEntregas: 8,
-    entregasRealizadas: 0,
-    clientesAusentes: 0
+    entregasRealizadas: 1,
+    percentualEntregue: 13,
+    clientesAusentes: 1,
+    pedidos: [
+      { id: "PED-9820", clienteNome: "Distribuidora Express Bebidas", endereco: "Rua Duque de Caxias, 55", cidade: "Três Barras", status: "entregue", entregue: true },
+      { id: "PED-9822", clienteNome: "Conveniência Posto Ipiranga", endereco: "Av. Rigesa, 1400 - São Cristóvão", cidade: "Três Barras", status: "pendente", entregue: false }
+    ]
   }
 ];
 

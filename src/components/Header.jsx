@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logoImg from '../assets/logo.png';
 import { 
   Truck, 
   Calendar, 
@@ -9,7 +10,6 @@ import {
   CheckCircle2, 
   X,
   ExternalLink,
-  ArrowLeft,
   Navigation
 } from 'lucide-react';
 
@@ -38,53 +38,47 @@ export default function Header({
 
   return (
     <>
-      <header className="bg-white border-b border-[#eaecef] px-4 lg:px-6 py-3 shrink-0 z-40 shadow-sm faixaBordaTopo">
+      <header className="bg-white border-b border-[#eaecef] px-4 lg:px-6 py-2.5 shrink-0 z-40 shadow-xs faixaBordaTopo">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           
-          {/* Identidade Visual Amigão - Seção Cargas & Logística */}
-          <div className="flex items-center gap-3">
-            {/* Botão Voltar Padrão */}
-            <button
-              type="button"
-              className="botaoVoltar"
-              onClick={() => window.history.length > 1 ? window.history.back() : window.location.reload()}
-              title="Voltar para a tela anterior"
-            >
-              <ArrowLeft className="w-4 h-4 text-[#495057]" />
-              <span className="hidden sm:inline">Voltar</span>
-            </button>
-
-            {/* Ícone com Gradiente Oficial de Cargas/Transporte */}
-            <div className="gradienteCargas p-2.5 rounded-[10px] shadow-sm text-white flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
+          {/* Identidade Visual Amiguinho Express */}
+          <div className="flex items-center gap-3.5">
+            {/* Logo Oficial Amiguinho Express */}
+            <div className="flex items-center justify-center shrink-0">
+              <img 
+                src={logoImg} 
+                alt="Amiguinho Express" 
+                className="h-12 sm:h-14 w-auto object-contain drop-shadow-sm transition-transform hover:scale-105" 
+              />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-extrabold tracking-wider text-[#7048e8] uppercase">
-                  MÓDULO DE CARGAS & LOGÍSTICA
+                <span className="text-lg sm:text-2xl font-black text-[#1a1f2e] tracking-tight leading-none flex items-center gap-1.5">
+                  <span>Amiguinho</span>
+                  <span className="text-[#e50914] uppercase tracking-normal">Express</span>
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#fff3e0] text-[#ff8c00] border border-[#ffd699]">
-                  AMIGÃO
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f1f3f5] text-[#495057] border border-[#dee2e6] uppercase tracking-wider">
+                  Logística
                 </span>
               </div>
-              <h1 className="text-base md:text-lg font-extrabold text-[#1a1f2e] tracking-tight leading-tight">
-                Painel Operacional de Telemetria e Rotas
-              </h1>
+              <p className="text-xs text-[#868e96] font-medium mt-1 leading-tight">
+                Painel Operacional de Telemetria e Rastreamento em Tempo Real
+              </p>
             </div>
           </div>
 
           {/* Controles de Topo: Filtro por Data, Modo Mock, Token JWT e Atualização */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             
             {/* Seletor de Data */}
-            <div className="flex items-center bg-white border-[1.5px] border-[#dee2e6] rounded-[8px] px-3 py-1.5 focus-within:border-[#ff8c00] focus-within:ring-2 focus-within:ring-[#ff8c00]/15 transition-all">
-              <Calendar className="w-4 h-4 text-[#868e96] mr-2 shrink-0" />
+            <div className="h-9 flex items-center bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] px-3 focus-within:bg-white focus-within:border-[#e50914] focus-within:ring-2 focus-within:ring-[#e50914]/15 transition-all">
+              <Calendar className="w-3.5 h-3.5 text-[#868e96] mr-2 shrink-0" />
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => onDateChange(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-[#1a1f2e] outline-none cursor-pointer"
+                className="bg-transparent text-xs font-bold text-[#1a1f2e] outline-none cursor-pointer"
                 title="Filtrar rotas pela data"
               />
             </div>
@@ -93,12 +87,16 @@ export default function Header({
             <button
               onClick={onToggleMockMode}
               type="button"
-              className={`transition-all cursor-pointer ${isMockMode ? 'badgeAlerta' : 'badgeSucesso'}`}
+              className={`h-9 px-3 rounded-[8px] border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                isMockMode 
+                  ? 'bg-[#f8f9fa] text-[#495057] border-[#dee2e6] hover:bg-[#e9ecef]' 
+                  : 'bg-[#f8f9fa] text-[#2b8a3e] border-[#dee2e6] hover:bg-[#e9ecef]'
+              }`}
               title={isMockMode ? "Modo Simulado ativo. Clique para conectar na API Real." : "Conectado na API Real. Clique para alternar para modo simulado."}
             >
               {isMockMode ? (
                 <>
-                  <Database className="w-3.5 h-3.5 text-[#e67700]" />
+                  <Database className="w-3.5 h-3.5 text-[#868e96]" />
                   <span>Modo Simulado</span>
                 </>
               ) : (
@@ -116,29 +114,29 @@ export default function Header({
                 setShowTokenModal(true);
               }}
               type="button"
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border text-xs font-bold transition-all ${
+              className={`h-9 px-3 rounded-[8px] border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 token
-                  ? 'bg-[#e7f5ff] border-[#a5d8ff] text-[#1971c2] hover:bg-[#d0ebff]'
-                  : 'bg-white border-[#dee2e6] text-[#495057] hover:bg-[#f8f9fa] hover:border-[#ced4da]'
+                  ? 'bg-[#f8f9fa] border-[#dee2e6] text-[#1a1f2e] hover:bg-[#e9ecef]'
+                  : 'bg-[#f8f9fa] border-[#dee2e6] text-[#6c757d] hover:bg-[#e9ecef]'
               }`}
               title="Configurar Bearer Token JWT para requisições"
             >
-              <Key className="w-3.5 h-3.5" />
+              <Key className="w-3.5 h-3.5 text-[#868e96]" />
               <span className="hidden sm:inline">
                 {token ? 'JWT Configurado' : 'Configurar JWT'}
               </span>
-              {token && <span className="w-1.5 h-1.5 rounded-full bg-[#1971c2]"></span>}
+              {token && <span className="w-1.5 h-1.5 rounded-full bg-[#2f9e44]"></span>}
             </button>
 
-            {/* Botão de Atualizar com Gradiente Oficial Amigão */}
+            {/* Botão de Atualizar */}
             <button
               onClick={onRefresh}
               disabled={isLoading}
               type="button"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] text-white text-xs font-bold gradienteMarca shadow-sm hover:opacity-95 active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="h-9 px-3.5 rounded-[8px] text-white text-xs font-bold bg-[#e50914] hover:bg-[#c90812] shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span className="font-bold">Atualizar</span>
+              <span>Atualizar</span>
             </button>
 
           </div>
@@ -152,15 +150,13 @@ export default function Header({
             
             <div className="flex items-center justify-between pb-3.5 border-b border-[#eaecef]">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-[#e7f5ff] text-[#1971c2] rounded-[8px]">
-                  <Key className="w-5 h-5" />
-                </div>
+                <img src={logoImg} alt="Amiguinho Express" className="w-8 h-8 object-contain" />
                 <div>
                   <h3 className="font-bold text-[#1a1f2e] text-base leading-tight">
                     Token de Autenticação JWT
                   </h3>
                   <p className="text-[11px] text-[#868e96]">
-                    Distribuidora Amigão • Segurança da API
+                    Amiguinho Express • Segurança da API
                   </p>
                 </div>
               </div>

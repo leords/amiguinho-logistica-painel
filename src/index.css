@@ -19,10 +19,16 @@
   --blue-light: #e7f5ff;      /* Fundo suave de cards institucionais */
   --blue-mid: #a5d8ff;        /* Bordas de seleção */
 
-  /* ── 4. LOGÍSTICA & CARGAS (Roxo / Púrpura) ── */
-  --purple: #7048e8;          /* Módulo de Cargas, Romaneios e Expedição */
-  --purple-light: #f3f0ff;    /* Fundo de cards e ícones de logística */
-  --purple-mid: #b197fc;      /* Bordas de logística */
+  /* ── 4. LOGÍSTICA & CARGAS (Vermelho Oficial Amiguinho Express) ── */
+  --brand-red: #e50914;       /* Vermelho oficial do novo logo Amiguinho Express */
+  --brand-red-light: #fef2f2; /* Fundo suave para cards e tags de logística */
+  --brand-red-mid: #fecaca;   /* Bordas de elementos em vermelho */
+  --brand-red-dark: #b91c1c;  /* Hover e textos em vermelho escuro */
+
+  /* Aliases para compatibilidade */
+  --purple: var(--brand-red);
+  --purple-light: var(--brand-red-light);
+  --purple-mid: var(--brand-red-mid);
 
   /* ── 5. PERIGO, CANCELAMENTOS & DÉBITOS (Vermelho) ── */
   --red: #c92a2a;             /* Exclusão, erros, pedidos cancelados, diferenças negativas */
@@ -68,11 +74,11 @@
 
 /* ── 2. GRADIENTES OFICIAIS DE DESTAQUE ── */
 .gradienteMarca {
-  background: linear-gradient(135deg, #ff8c00, #ffb347);
+  background: linear-gradient(135deg, #e50914, #ff5d00);
 }
 
 .gradienteCargas {
-  background: linear-gradient(135deg, #7048e8, #9775fa);
+  background: linear-gradient(135deg, #e50914, #ff5d00);
 }
 
 .gradienteSucesso {
@@ -89,8 +95,8 @@
   left: 0;
   bottom: 0;
   right: 0;
-  height: 2.5px;
-  background: linear-gradient(90deg, #ff8c00 0%, #ff8c00 15%, transparent 60%);
+  height: 3px;
+  background: linear-gradient(90deg, #e50914 0%, #ff5d00 30%, #ffb900 65%, transparent 100%);
   pointer-events: none;
 }
 
@@ -260,19 +266,19 @@
   color: var(--gray-900) !important;
 }
 
-/* Efeito de Pulso Suave para entregadores ativos */
+/* Efeito de Pulso Suave em Vermelho Amiguinho Express para entregadores ativos */
 @keyframes ping-radar {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(112, 72, 232, 0.7);
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7);
   }
   70% {
     transform: scale(1.05);
-    box-shadow: 0 0 0 12px rgba(112, 72, 232, 0);
+    box-shadow: 0 0 0 12px rgba(229, 9, 20, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(112, 72, 232, 0);
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
   }
 }
 

@@ -24,17 +24,20 @@ const getTodayDateString = () => {
 export default function App() {
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [token, setTokenState] = useState(getStoredToken());
-  const [isMockMode, setIsMockMode] = useState(getStoredMockMode());
+  const [isMockMode, setIsMockMode] = useState(false);
 
   const [jornadas, setJornadas] = useState([]);
   const [selectedJornada, setSelectedJornada] = useState(null);
   const [rotaDetalhada, setRotaDetalhada] = useState(null);
+  const [focusedPedido, setFocusedPedido] = useState(null);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
 
   const [isLoadingJornadas, setIsLoadingJornadas] = useState(false);
   const [errorJornadas, setErrorJornadas] = useState(null);
 
   const [isLoadingRota, setIsLoadingRota] = useState(false);
   const [errorRota, setErrorRota] = useState(null);
+  const [distanciaCalculada, setDistanciaCalculada] = useState(null);
 
   // Manipulador de token com persistência no localStorage
   const handleTokenChange = (newToken) => {
@@ -59,13 +62,14 @@ export default function App() {
       const lista = Array.isArray(data) ? data : (data.jornadas || []);
       setJornadas(lista);
 
-      // Se houver jornadas, seleciona a primeira automaticamente ou mantém a atual se ainda existir
+      // Mantém a jornada atual se o usuário já tiver selecionado uma e ela ainda existir na lista.
+      // Ao iniciar ou trocar a data, NÃO seleciona automaticamente (aguarda o clique do usuário na lista).
       if (lista.length > 0) {
         setSelectedJornada((prev) => {
           if (prev && lista.some((j) => j.id === prev.id)) {
             return lista.find((j) => j.id === prev.id);
           }
-          return lista[0];
+          return null;
         });
       } else {
         setSelectedJornada(null);
@@ -86,26 +90,40 @@ export default function App() {
     }
   }, [selectedDate, isMockMode]);
 
-  // Carrega rota detalhada da jornada selecionada
-  const loadRota = useCallback(async (jornadaId) => {
+  // Carrega rota detalhada da jornada selecionada (suporta modo silencioso para polling de 15s)
+  const loadRota = useCallback(async (jornadaId, isSilent = false) => {
     if (!jornadaId) return;
 
-    setIsLoadingRota(true);
-    setErrorRota(null);
+    if (!isSilent) {
+      setIsLoadingRota(true);
+      setErrorRota(null);
+    }
 
     try {
       const data = await fetchRotaJornada(jornadaId, isMockMode);
       setRotaDetalhada(data);
+      setLastSyncTime(new Date());
+
+      // Se for atualização silenciosa e houver dados de entregas atualizados, sincroniza o item na lista
+      if (data && isSilent) {
+        setJornadas((prev) =>
+          prev.map((j) => (j.id === jornadaId ? { ...j, ...data } : j))
+        );
+      }
     } catch (err) {
-      console.error(`Erro ao buscar rota da jornada ${jornadaId}:`, err);
-      setErrorRota(
-        err.response?.data?.message || 
-        err.message || 
-        'Erro ao carregar telemetria da rota.'
-      );
-      setRotaDetalhada(null);
+      console.warn(`[LiveTracking] Erro ao sincronizar rota ${jornadaId}:`, err.message);
+      if (!isSilent) {
+        setErrorRota(
+          err.response?.data?.message || 
+          err.message || 
+          'Erro ao carregar telemetria da rota.'
+        );
+        setRotaDetalhada(null);
+      }
     } finally {
-      setIsLoadingRota(false);
+      if (!isSilent) {
+        setIsLoadingRota(false);
+      }
     }
   }, [isMockMode]);
 
@@ -114,14 +132,115 @@ export default function App() {
     loadJornadas();
   }, [loadJornadas]);
 
-  // Efeito: Carrega a rota quando a jornada selecionada mudar
+  // Efeito: Carrega a rota quando a jornada selecionada mudar (carregamento normal)
   useEffect(() => {
     if (selectedJornada?.id) {
-      loadRota(selectedJornada.id);
+      loadRota(selectedJornada.id, false);
     } else {
       setRotaDetalhada(null);
     }
   }, [selectedJornada?.id, loadRota]);
+
+  // Efeito: Rastreamento em Tempo Real - Atualização automática silenciosa da rota a cada 15 segundos
+  useEffect(() => {
+    const isEmAndamento =
+      selectedJornada?.status === 'EM ANDAMENTO' ||
+      selectedJornada?.status === 'EM_ANDAMENTO';
+
+    if (!selectedJornada?.id || !isEmAndamento) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      // Faz a requisição em segundo plano, sem travar a interface e sem spinner invasivo
+      loadRota(selectedJornada.id, true);
+    }, 15000); // 15 segundos
+
+    return () => clearInterval(intervalId);
+  }, [selectedJornada?.id, selectedJornada?.status, loadRota]);
+
+  // Efeito: Sincronização periódica da lista geral de jornadas a cada 45 segundos (se houver alguma jornada ativa)
+  useEffect(() => {
+    const temEmAndamento = jornadas.some(
+      (j) => j.status === 'EM ANDAMENTO' || j.status === 'EM_ANDAMENTO'
+    );
+    if (!temEmAndamento) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const data = await fetchJornadas(selectedDate, isMockMode);
+        const lista = Array.isArray(data) ? data : (data.jornadas || []);
+        if (lista.length > 0) {
+          setJornadas(lista);
+        }
+      } catch (err) {
+        // silencioso
+      }
+    }, 45000);
+
+    return () => clearInterval(intervalId);
+  }, [jornadas, selectedDate, isMockMode]);
+
+  // Seleção de jornada (ao clicar no card da carga, desmarca qualquer pedido focado e reseta cálculo de distância)
+  const handleSelectJornada = (jornada) => {
+    setSelectedJornada(jornada);
+    setFocusedPedido(null);
+    setDistanciaCalculada(null);
+  };
+
+  // Atualização dinâmica da distância percorrida apurada pelo mapa/OSRM
+  const handleDistanciaCalculada = useCallback((distKm) => {
+    if (typeof distKm === 'number' && !isNaN(distKm) && distKm > 0) {
+      setDistanciaCalculada(distKm);
+
+      // Sincroniza a distância ajustada na jornada selecionada e na lista da barra lateral
+      setSelectedJornada((prev) => (prev ? { ...prev, distanciaTotalKm: distKm } : prev));
+      setJornadas((prev) =>
+        prev.map((j) => (j.id === selectedJornada?.id ? { ...j, distanciaTotalKm: distKm } : j))
+      );
+    }
+  }, [selectedJornada?.id]);
+
+  // Manipulador seguro de clique em um pedido para focar no mapa (com toggle ao clicar no mesmo)
+  const handleSelectPedido = (arg1, arg2) => {
+    let jornada = null;
+    let pedido = null;
+
+    if (arg2) {
+      jornada = arg1;
+      pedido = arg2;
+    } else if (arg1) {
+      pedido = arg1;
+      jornada = selectedJornada;
+    }
+
+    if (!pedido) return;
+
+    // Se o pedido clicado já for o atualmente focado, desfoque (toggle)
+    const pId = String(pedido.id || '');
+    const pUuid = String(pedido.uuid || '');
+    if (
+      focusedPedido &&
+      ((pId && String(focusedPedido.id) === pId) ||
+       (pUuid && String(focusedPedido.uuid) === pUuid))
+    ) {
+      setFocusedPedido(null);
+      return;
+    }
+
+    // Só troca de jornada se arg1 for um objeto de jornada real diferente da atual
+    if (jornada && jornada.id && selectedJornada?.id !== jornada.id) {
+      // Valida se o ID é uma jornada real (UUID ou possui campos de rota) e não um ID de pedido numérico
+      if (typeof jornada.id === 'string' && (jornada.id.length > 10 || jornada.veiculoId)) {
+        setSelectedJornada(jornada);
+      }
+    }
+
+    setFocusedPedido({
+      ...pedido,
+      timestamp: Date.now()
+    });
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#f2f4f7] text-[#1a1f2e] font-sans">
@@ -145,10 +264,12 @@ export default function App() {
         <JornadaList
           jornadas={jornadas}
           selectedJornada={selectedJornada}
-          onSelectJornada={setSelectedJornada}
+          onSelectJornada={handleSelectJornada}
           isLoading={isLoadingJornadas}
           error={errorJornadas}
           onRetry={loadJornadas}
+          focusedPedido={focusedPedido}
+          onSelectPedido={handleSelectPedido}
           onSwitchToMock={isMockMode ? null : () => {
             setIsMockMode(true);
             setStoredMockMode(true);
@@ -164,6 +285,10 @@ export default function App() {
               jornada={selectedJornada}
               rotaDetalhada={rotaDetalhada}
               isLoadingRota={isLoadingRota}
+              focusedPedido={focusedPedido}
+              onSelectPedido={(p) => handleSelectPedido(selectedJornada, p)}
+              onClearFocus={() => setFocusedPedido(null)}
+              distanciaCalculada={distanciaCalculada}
             />
           )}
 
@@ -174,6 +299,11 @@ export default function App() {
               rotaDetalhada={rotaDetalhada}
               isLoadingRota={isLoadingRota}
               errorRota={errorRota}
+              focusedPedido={focusedPedido}
+              onClearFocus={() => setFocusedPedido(null)}
+              lastSyncTime={lastSyncTime}
+              onManualRefresh={() => selectedJornada?.id && loadRota(selectedJornada.id, true)}
+              onDistanciaCalculada={handleDistanciaCalculada}
             />
           </div>
 

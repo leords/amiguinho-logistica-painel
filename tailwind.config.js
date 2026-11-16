@@ -27,10 +27,16 @@ export default {
           light: '#e7f5ff',
           mid: '#a5d8ff',
         },
+        brand: {
+          DEFAULT: '#e50914',
+          dark: '#b91c1c',
+          light: '#fef2f2',
+          mid: '#fecaca',
+        },
         purple: {
-          DEFAULT: '#7048e8',
-          light: '#f3f0ff',
-          mid: '#b197fc',
+          DEFAULT: '#e50914',
+          light: '#fef2f2',
+          mid: '#fecaca',
         },
         red: {
           DEFAULT: '#c92a2a',

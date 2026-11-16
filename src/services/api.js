@@ -42,7 +42,7 @@ export const setStoredToken = (token) => {
 // Helpers para Modo Mock (para testes sem backend)
 export const getStoredMockMode = () => {
   const val = localStorage.getItem(MOCK_KEY);
-  return val === null ? true : val === 'true'; // Padrão 'true' no primeiro acesso para demonstração rica imediata
+  return val === 'true'; // Padrão false (API Real), para carregar os dados reais de telemetria
 };
 
 export const setStoredMockMode = (active) => {
@@ -80,42 +80,68 @@ export const fetchJornadas = async (data, forceMock = false) => {
  * GET /api/v1/jornadas/:id/rota
  */
 export const fetchRotaJornada = async (id, forceMock = false) => {
+  let rota;
+
   if (forceMock) {
     await new Promise((r) => setTimeout(r, 350));
-    const rota = mockRotas[id] || {
+    rota = mockRotas[id] || {
       jornadaId: id,
       coordenadas: [],
       eventos: []
     };
-    return rota;
+  } else {
+    try {
+      const response = await api.get(`/api/v1/jornadas/${id}/rota`);
+      rota = response.data?.dados || response.data || {};
+    } catch (error) {
+      console.warn(`[API Amigão] Falha ao buscar rota ${id}:`, error.message);
+      throw error;
+    }
   }
 
-  try {
-    const response = await api.get(`/api/v1/jornadas/${id}/rota`);
-    const payload = response.data?.dados || response.data || {};
-    const rawCoords = payload.coordenadas || payload.localizacoes || [];
-    const coordenadas = rawCoords.map((c) => ({
-      ...c,
-      latitude: typeof c.latitude === 'string' ? parseFloat(c.latitude) : c.latitude,
-      longitude: typeof c.longitude === 'string' ? parseFloat(c.longitude) : c.longitude,
-      dataHora: c.dataHora || c.criadoEm
-    })).filter((c) => !isNaN(c.latitude) && !isNaN(c.longitude));
+  const rawCoords = rota.coordenadas || rota.localizacoes || [];
+  const coordenadas = rawCoords
+    .map((c) => {
+      const lat = typeof c.latitude === 'string' ? parseFloat(c.latitude) : c.latitude;
+      const lng = typeof c.longitude === 'string' ? parseFloat(c.longitude) : c.longitude;
+      const rawVel = c.velocidadeKmH ?? c.velocidade ?? 0;
+      const vel = typeof rawVel === 'string' ? parseFloat(rawVel) : (typeof rawVel === 'number' ? rawVel : 0);
+      return {
+        ...c,
+        latitude: lat,
+        longitude: lng,
+        velocidade: Math.round(vel),
+        velocidadeKmH: Math.round(vel),
+        dataHora: c.dataHora || c.criadoEm
+      };
+    })
+    .filter((c) => !isNaN(c.latitude) && !isNaN(c.longitude));
 
-    const rawEventos = payload.eventos || [];
-    const eventos = rawEventos.map((e) => ({
+  const rawEventos = rota.eventos || [];
+  const eventos = rawEventos
+    .map((e) => ({
       ...e,
       latitude: typeof e.latitude === 'string' ? parseFloat(e.latitude) : e.latitude,
       longitude: typeof e.longitude === 'string' ? parseFloat(e.longitude) : e.longitude,
       dataHora: e.dataHora || e.criadoEm
-    })).filter((e) => !isNaN(e.latitude) && !isNaN(e.longitude));
+    }))
+    .filter((e) => !isNaN(e.latitude) && !isNaN(e.longitude));
 
-    return {
-      ...payload,
-      coordenadas,
-      eventos
-    };
-  } catch (error) {
-    console.warn(`[API Amigão] Falha ao buscar rota ${id}:`, error.message);
-    throw error;
-  }
+  // Cálculo da velocidade média em movimento (> 2 km/h) e velocidade máxima
+  const pontosEmMovimento = coordenadas.filter((c) => (c.velocidadeKmH || 0) > 2);
+  const velocidadeMedia = pontosEmMovimento.length > 0
+    ? Math.round(pontosEmMovimento.reduce((acc, c) => acc + c.velocidadeKmH, 0) / pontosEmMovimento.length)
+    : (coordenadas.length > 0 ? Math.round(coordenadas.reduce((acc, c) => acc + (c.velocidadeKmH || 0), 0) / coordenadas.length) : 0);
+
+  const velocidadeMaxima = coordenadas.length > 0
+    ? Math.round(Math.max(0, ...coordenadas.map((c) => c.velocidadeKmH || 0)))
+    : 0;
+
+  return {
+    ...rota,
+    coordenadas,
+    eventos,
+    velocidadeMedia,
+    velocidadeMaxima
+  };
 };

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import JornadaCard from './JornadaCard';
-import { Route, Search, AlertCircle, RefreshCw, Sparkles, Filter, Truck } from 'lucide-react';
+import logoImg from '../assets/logo.png';
+import { Route, Search, AlertCircle, RefreshCw, Sparkles, Filter, Truck, X, Eye } from 'lucide-react';
 
 export default function JornadaList({
   jornadas,
@@ -9,19 +10,28 @@ export default function JornadaList({
   isLoading,
   error,
   onRetry,
-  onSwitchToMock
+  onSwitchToMock,
+  focusedPedido,
+  onSelectPedido
 }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('TODOS'); // 'TODOS' | 'EM ANDAMENTO' | 'FINALIZADA'
+  const [statusFilter, setStatusFilter] = useState('EM ANDAMENTO'); // 'EM ANDAMENTO' | 'FINALIZADA' | 'TODOS'
 
-  // Filtro por entregador ou veículo e por status
+  // Filtro por motorista, veículo ou ID e por status
   const filteredJornadas = useMemo(() => {
     return jornadas.filter((j) => {
       const term = searchTerm.toLowerCase();
       const nome = (j.usuarioNome || '').toLowerCase();
+      const motorista = (j.motoristaNome || '').toLowerCase();
       const userId = (j.usuarioId || '').toLowerCase();
       const veiculo = (j.veiculoId || '').toLowerCase();
-      const matchesSearch = nome.includes(term) || userId.includes(term) || veiculo.includes(term);
+      const cargaId = String(j.cargaId || '');
+      const matchesSearch = 
+        nome.includes(term) || 
+        motorista.includes(term) || 
+        userId.includes(term) || 
+        veiculo.includes(term) ||
+        cargaId.includes(term);
 
       if (!matchesSearch) return false;
 
@@ -35,81 +45,127 @@ export default function JornadaList({
   const finalizadasCount = jornadas.filter((j) => j.status === 'FINALIZADA' || j.status === 'CONCLUIDA').length;
 
   return (
-    <aside className="w-full lg:w-96 bg-white border-r border-[#eaecef] flex flex-col h-full overflow-hidden shrink-0 shadow-xs">
+    <aside className="w-full lg:w-[410px] xl:w-[430px] bg-white border-r border-[#eaecef] flex flex-col h-full overflow-hidden shrink-0 shadow-xs">
       
-      {/* Cabeçalho da Barra Lateral */}
+      {/* Cabeçalho da Barra Lateral com Logo e Identidade Amiguinho Express */}
       <div className="p-4 border-b border-[#eaecef] bg-white space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-[8px] bg-[#f3f0ff] text-[#7048e8]">
-              <Route className="w-4 h-4" />
-            </div>
+          <div className="flex items-center gap-3">
+            <img 
+              src={logoImg} 
+              alt="Logo" 
+              className="w-9 h-9 object-contain drop-shadow-xs shrink-0" 
+            />
             <div>
-              <h2 className="font-extrabold text-[#1a1f2e] text-xs uppercase tracking-wide">
-                Jornadas Operacionais
+              <h2 className="font-black text-[#1a1f2e] text-sm uppercase tracking-wide">
+                Cargas & Rotas
               </h2>
-              <p className="text-[11px] text-[#868e96]">
-                Entregadores e frotas ativas
+              <p className="text-xs text-[#868e96] font-medium leading-tight mt-0.5">
+                Monitoramento de frotas e telemetria
               </p>
             </div>
           </div>
-          <span className="badgeNeutro !text-[11px]">
+          <span className="badgeNeutro !text-[11px] !py-0.5 !px-2.5 font-mono font-bold">
             {jornadas.length} {jornadas.length === 1 ? 'rota' : 'rotas'}
           </span>
         </div>
 
-        {/* Input de Busca Rápida */}
+        {/* Input de Busca Rápida com Limpar */}
         <div className="relative">
           <Search className="w-4 h-4 text-[#868e96] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar por entregador, ID ou placa..."
-            className="w-full bg-[#f8f9fa] border border-[#dee2e6] rounded-[8px] pl-9 pr-3 py-1.5 text-xs font-medium text-[#1a1f2e] placeholder-[#868e96] focus:bg-white focus:outline-none focus:border-[#ff8c00] focus:ring-2 focus:ring-[#ff8c00]/15 transition-all"
+            placeholder="Buscar por motorista, carga ou veículo..."
+            className="w-full h-10 bg-[#f8f9fa] border border-[#dee2e6] rounded-[10px] pl-9 pr-8 text-xs font-semibold text-[#1a1f2e] placeholder-[#868e96] focus:bg-white focus:outline-none focus:border-[#e50914] focus:ring-2 focus:ring-[#e50914]/15 transition-all"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#868e96] hover:text-[#1a1f2e] p-1 rounded-full hover:bg-[#e9ecef]"
+              title="Limpar busca"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        {/* Filtros Rápidos de Status */}
-        <div className="flex items-center gap-1.5 pt-1">
-          <button
-            onClick={() => setStatusFilter('TODOS')}
-            type="button"
-            className={`px-2.5 py-1 rounded-[6px] text-[11px] font-bold transition-all cursor-pointer ${
-              statusFilter === 'TODOS'
-                ? 'bg-[#1a1f2e] text-white shadow-xs'
-                : 'bg-[#f8f9fa] text-[#495057] hover:bg-[#dee2e6]'
-            }`}
-          >
-            Todas ({jornadas.length})
-          </button>
+        {/* Filtros Rápidos de Status: Design sóbrio, limpo e profissional */}
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#f1f3f5] rounded-[10px]">
           <button
             onClick={() => setStatusFilter('EM ANDAMENTO')}
             type="button"
-            className={`px-2.5 py-1 rounded-[6px] text-[11px] font-bold transition-all cursor-pointer ${
+            className={`h-8 px-2 rounded-[7px] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'EM ANDAMENTO'
-                ? 'bg-[#e67700] text-white shadow-xs'
-                : 'bg-[#fff9db] text-[#e67700] border border-[#ffe066] hover:opacity-90'
+                ? 'bg-white text-[#1a1f2e] shadow-xs'
+                : 'text-[#6c757d] hover:text-[#1a1f2e]'
             }`}
           >
-            Em Rota ({emAndamentoCount})
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e50914]" />
+            <span>Em Rota</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+              statusFilter === 'EM ANDAMENTO' ? 'bg-[#f8f9fa] text-[#495057] border border-[#e9ecef]' : 'text-[#868e96]'
+            }`}>
+              {emAndamentoCount}
+            </span>
           </button>
+
           <button
             onClick={() => setStatusFilter('FINALIZADA')}
             type="button"
-            className={`px-2.5 py-1 rounded-[6px] text-[11px] font-bold transition-all cursor-pointer ${
+            className={`h-8 px-2 rounded-[7px] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'FINALIZADA'
-                ? 'bg-[#2f9e44] text-white shadow-xs'
-                : 'bg-[#ebfbee] text-[#2f9e44] border border-[#8ce99a] hover:opacity-90'
+                ? 'bg-white text-[#1a1f2e] shadow-xs'
+                : 'text-[#6c757d] hover:text-[#1a1f2e]'
             }`}
           >
-            Finalizadas ({finalizadasCount})
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2f9e44]" />
+            <span>Finalizadas</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+              statusFilter === 'FINALIZADA' ? 'bg-[#f8f9fa] text-[#495057] border border-[#e9ecef]' : 'text-[#868e96]'
+            }`}>
+              {finalizadasCount}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter('TODOS')}
+            type="button"
+            className={`h-8 px-2 rounded-[7px] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              statusFilter === 'TODOS'
+                ? 'bg-white text-[#1a1f2e] shadow-xs'
+                : 'text-[#6c757d] hover:text-[#1a1f2e]'
+            }`}
+          >
+            <span>Todas</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+              statusFilter === 'TODOS' ? 'bg-[#f8f9fa] text-[#495057] border border-[#e9ecef]' : 'text-[#868e96]'
+            }`}>
+              {jornadas.length}
+            </span>
           </button>
         </div>
+
+        {/* Banner de Rota em Análise Atual (Discreto e em cinza claro) */}
+        {selectedJornada && (
+          <div className="bg-[#f8f9fa] border border-[#e9ecef] rounded-[10px] px-3 py-2 flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-[#495057] font-semibold min-w-0">
+              <Eye className="w-4 h-4 text-[#868e96] shrink-0" />
+              <span className="truncate">
+                No Mapa: <strong className="text-[#212529]">{selectedJornada.cargaId ? `Carga #${selectedJornada.cargaId}` : selectedJornada.veiculoId}</strong>
+              </span>
+            </div>
+            <span className="text-[10px] bg-white text-[#495057] font-bold px-2 py-0.5 rounded-full border border-[#dee2e6] uppercase tracking-wider shrink-0 shadow-2xs">
+              Ativa 👁️
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Lista com Rolagem */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 bg-[#f8f9fa]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f8f9fa]">
         
         {/* Loading Skeletons */}
         {isLoading && (
@@ -167,7 +223,10 @@ export default function JornadaList({
               key={jornada.id}
               jornada={jornada}
               isSelected={selectedJornada?.id === jornada.id}
+              hasAnySelected={Boolean(selectedJornada?.id)}
               onSelect={onSelectJornada}
+              focusedPedido={focusedPedido}
+              onSelectPedido={(pedido) => onSelectPedido && onSelectPedido(jornada, pedido)}
             />
           ))
         )}
@@ -178,12 +237,27 @@ export default function JornadaList({
             <div className="w-12 h-12 rounded-full bg-[#e7f5ff] text-[#1971c2] flex items-center justify-center mx-auto mb-3">
               <Truck className="w-6 h-6" />
             </div>
-            <h4 className="text-xs font-bold text-[#1a1f2e]">Nenhuma rota localizada</h4>
+            <h4 className="text-xs font-bold text-[#1a1f2e]">
+              {statusFilter === 'EM ANDAMENTO' ? 'Nenhuma rota em andamento' : 'Nenhuma rota localizada'}
+            </h4>
             <p className="text-[11px] text-[#868e96] mt-1">
               {searchTerm 
                 ? 'Tente ajustar os termos da busca.' 
+                : statusFilter === 'EM ANDAMENTO'
+                ? 'Não há caminhões em trânsito no momento.'
+                : statusFilter === 'FINALIZADA'
+                ? 'Não há jornadas finalizadas nesta data.'
                 : 'Não há registros de jornadas para esta data.'}
             </p>
+            {statusFilter === 'EM ANDAMENTO' && finalizadasCount > 0 && !searchTerm && (
+              <button
+                type="button"
+                onClick={() => setStatusFilter('FINALIZADA')}
+                className="mt-3 text-xs font-bold text-[#1971c2] hover:text-[#1864ab] inline-flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                Ver {finalizadasCount} {finalizadasCount === 1 ? 'rota finalizada' : 'rotas finalizadas'} &rarr;
+              </button>
+            )}
           </div>
         )}
 
